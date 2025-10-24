@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Updated Title Text --><title>Kali Boost Live Orders Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Mali:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Define the new cute anime girl inspired colors */
+        :root {
+            --cute-pink: #FFC0CB; /* Light Pink */
+            --cute-purple: #E0BBE4; /* Pastel Purple */
+            --cute-blue: #9AD0EC; /* Sky Blue */
+            --cute-green: #BAF7D2; /* Mint Green (Used for 'Completed' stat text) */
+            --cute-yellow: #FFFACD; /* Creamy Yellow */
+            /* UPDATED: Stronger, more traditional red for 'FAILED' state */
+            --cute-red: #E74C3C; /* Strong Alert Red */
+            --bg-main: #FDF4F5; /* Very light pink/white background */
+            --bg-card: #FFFFFF; /* White card background */
+            --text-main: #6B4C72; /* Darker purple for main text */
+            --text-accent: #FF6961; /* Salmon red for accents */
+            /* Added deep yellow for processing text */
+            --deep-yellow-text: #DAA520; /* Goldenrod color for good contrast on light yellow */
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            font-family: 'Comfortaa', cursive; /* Cute, rounded font */
+            overflow-x: hidden; 
+        }
+
+        h1, h2 {
+            font-family: 'Mali', cursive; /* More playful font for headings */
+            color: var(--text-accent);
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.1); /* Subtle shadow for headings */
+        }
+
+        .cute-glow-text {
+            text-shadow: 0 0 5px var(--cute-pink), 0 0 10px var(--cute-purple), 0 0 15px rgba(255, 192, 203, 0.5);
+            color: var(--text-accent);
+        }
+
+        .cute-border {
+            border: 1px solid var(--cute-pink);
+            box-shadow: 0 0 5px var(--cute-pink), 0 0 10px rgba(255, 192, 203, 0.4);
+        }
+
+        .cute-card-bg {
+            background-color: var(--bg-card);
+            box-shadow: 0 0 8px rgba(224, 187, 228, 0.4); /* Purple glow */
+            border: 1px solid var(--cute-purple);
+        }
+
+        .cute-green-text {
+            color: var(--cute-green);
+            text-shadow: 0 0 2px rgba(186, 247, 210, 0.5);
+        }
+        
+        /* Quantity: Cute Blue Text */
+        .cute-blue-text {
+            color: var(--cute-blue);
+            text-shadow: 0 0 2px rgba(154, 208, 236, 0.7);
+        }
+        
+        /* Processing Text Color (Yellow/Gold) */
+        .cute-processing-text {
+            color: var(--deep-yellow-text);
+        }
+        
+        /* Vibrant Success Green for Badge (Dark Light Green) */
+        .vibrant-success-bg {
+            background-color: #5BEA98; /* A vibrant, mid-tone pastel green */
+            color: #047857; /* Changed to a standard dark green for high contrast */
+        }
+        
+        /* UPDATED: FAILED Stat text now uses the stronger red */
+        .cute-red-text {
+            color: var(--cute-red);
+            text-shadow: 0 0 3px rgba(231, 76, 60, 0.7); /* Stronger shadow to match alert color */
+        }
+        
+        /* Explicitly define bg-cute-red for the badge to use the variable */
+        .bg-cute-red {
+            background-color: var(--cute-red);
+        }
+
+        /* Animation for new orders */
+        @keyframes fadeInSlide {
+            0% { opacity: 0; transform: translateY(-20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .new-order-row {
+            animation: fadeInSlide 0.5s ease-out;
+        }
+
+        /* Platform badges - cute colors */
+        .badge-ig { background-color: #FFB6C1; color: #8B0000; } 
+        .badge-tt { background-color: #ADD8E6; color: #000080; } 
+        .badge-yt { background-color: #FFCCCB; color: #8B0000; } 
+        .badge-fb { background-color: #B0E0E6; color: #000080; } 
+        .badge-x { background-color: #D3D3D3; color: #2F4F4F; } 
+        .badge-li { background-color: #CCE5FF; color: #00008B; } 
+        .badge-pi { background-color: #FFDAB9; color: #A0522D; } 
+        .badge-tg { background-color: #DDA0DD; color: #800080; } 
+        .badge-sp { background-color: #D4EDDA; color: #228B22; } 
+        .badge-web { background-color: #F0E68C; color: #8B8B00; } 
+
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <!-- Updated Title Text and Colors -->
+    <h1 class="text-4xl md:text-5xl text-center mb-10 tracking-wider cute-glow-text">
+        <span class="text-red-600">Kali</span> <span class="text-indigo-600">Boost</span> Live
+    </h1>
+
+    <!-- STATS PANEL --><div id="stats-panel" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <!-- Total Orders --><div class="p-4 rounded-xl cute-card-bg text-center">
+            <p class="text-sm uppercase opacity-70 mb-1">Total Orders</p>
+            <p id="total-orders" class="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 cute-glow-text">0</p>
+        </div>
+
+        <!-- Completed --><div class="p-4 rounded-xl cute-card-bg text-center">
+            <p class="text-sm uppercase opacity-70 mb-1">Completed</p>
+            <p id="total-completed" class="text-2xl sm:text-3xl md:text-4xl font-bold cute-green-text">0</p>
+        </div>
+
+        <!-- Failed --><div class="p-4 rounded-xl cute-card-bg text-center">
+            <p class="text-sm uppercase opacity-70 mb-1">Failed</p>
+            <p id="total-failed" class="text-2xl sm:text-3xl md:text-4xl font-bold cute-red-text">0</p>
+        </div>
+
+        <!-- Total Revenue --><div class="p-4 rounded-xl cute-card-bg text-center">
+            <p class="text-sm uppercase opacity-70 mb-1">Total Revenue</p>
+            <p id="total-revenue" class="text-2xl sm:text-3xl md:text-4xl font-bold text-yellow-600 cute-glow-text">₹ 0</p>
+        </div>
+    </div>
+
+    <!-- LIVE ORDERS LIST --><h2 class="text-2xl md:text-3xl mb-4 mt-10 cute-glow-text">
+        <span class="text-cute-pink">//</span> Live Feed
+    </h2>
+
+    <div class="cute-card-bg p-4 md:p-6 rounded-xl max-h-[60vh] overflow-y-auto">
+        <!-- Table Header: BOLD and increased opacity (opacity-90) -->
+        <div class="grid grid-cols-12 text-xs md:text-sm font-bold mb-3 pb-2 border-b border-gray-200 uppercase opacity-90">
+            <!-- Increased width for User ID --><div class="col-span-3 sm:col-span-3 flex items-center">User ID</div> 
+            <!-- Increased width for Service --><div class="col-span-3 sm:col-span-3">Service</div> 
+            <!-- Maintained Quantity width --><div class="col-span-2 sm:col-span-2">Quantity</div> 
+            <!-- Maintained Cost width --><div class="col-span-2 sm:col-span-2 text-right">Cost (₹)</div> 
+            <!-- Reduced Status width --><div class="col-span-2 sm:col-span-2 text-center">Status</div> 
+        </div>
+
+        <!-- Orders will be prepended here --><div id="orders-container" class="space-y-3">
+            <!-- Order Rows --></div>
+    </div>
+
+    <script>
+        // Global State
+        let stats = {
+            totalOrders: 23541,
+            completed: 23102,
+            failed: 439,
+            revenue: 1256789.50
+        };
+
+        // SEQUENTIAL ID COUNTER: Starts at 1 as requested (01)
+        let nextOrderId = 1;
+
+        // --- EXPANDED SERVICES LIST with lowered IG prices ---
+        const services = [
+            // 1. Instagram / Reels (IG) - Prices significantly lowered to be competitive (Max 0.60)
+            { name: "IG Followers (Real, Non-Drop)", price: 0.45, platform: "IG" }, 
+            { name: "IG Followers (Premium)", price: 0.60, platform: "IG" }, 
+            { name: "IG Photo Likes (Non-Drop)", price: 0.15, platform: "IG" }, 
+            { name: "IG Video Likes (Auto)", price: 0.20, platform: "IG" }, 
+            { name: "IG Reels Views (Instant)", price: 0.05, platform: "IG" }, 
+            { name: "IG Story Views (24h Drip)", price: 0.03, platform: "IG" }, 
+            { name: "IG Custom Comments", price: 0.35, platform: "IG" }, 
+            { name: "IG Post Saves/Shares", price: 0.10, platform: "IG" }, 
+            
+            // 2. TikTok / Reels (TT)
+            { name: "TikTok Followers (Active)", price: 1.10, platform: "TT" },
+            { name: "TikTok Video Views (HQ)", price: 0.15, platform: "TT" }, 
+            { name: "TikTok Reel Likes (Non-Drop)", price: 0.45, platform: "TT" },
+            { name: "TikTok Random Comments", price: 0.70, platform: "TT" },
+
+            // 3. YouTube (YT)
+            { name: "YT Subscribers (Non-Drop)", price: 6.50, platform: "YT" },
+            { name: "YT Video Views (HQ, Gradual)", price: 0.22, platform: "YT" },
+            { name: "YT Video Likes/Dislikes", price: 0.50, platform: "YT" },
+            { name: "YT Custom Comments", price: 1.10, platform: "YT" },
+            
+            // 4. Facebook (FB)
+            { name: "FB Page Likes (Targeted GEO)", price: 1.80, platform: "FB" },
+            { name: "FB Post Reactions (Love)", price: 0.35, platform: "FB" },
+            { name: "FB Post Shares", price: 0.60, platform: "FB" },
+            
+            // 5. Twitter / X (X)
+            { name: "X Followers (Real, Global)", price: 2.50, platform: "X" },
+            { name: "X Tweet Likes (Non-Drop)", price: 0.40, platform: "X" },
+            { name: "X Retweets (Targeted)", price: 0.55, platform: "X" },
+            
+            // 6. Other Platforms (LI, TG, SP, WEB)
+            { name: "LinkedIn Real Connections", price: 12.00, platform: "LI" },
+            { name: "Pinterest Board Followers", price: 1.90, platform: "PI" },
+            { name: "Telegram Channel Members", price: 1.60, platform: "TG" },
+            { name: "Telegram Post Views (Story)", price: 0.05, platform: "TG" },
+            { name: "Spotify Premium Streams", price: 0.10, platform: "SP" },
+            { name: "Website Traffic (GEO)", price: 0.25, platform: "WEB" },
+        ];
+        // --- END EXPANDED SERVICES LIST ---
+
+        // Filter Instagram services separately for biased selection
+        const igServices = services.filter(s => s.platform === 'IG');
+        const igBiasRatio = 0.65; // 65% chance to pick an Instagram order
+
+        const usernames = [
+            "SakuraChan", "KikoDream", "LunaStar", "MikoPixel", "HanaCode",
+            "MochiStream", "CherryBlossom", "SweetiePie", "PandaGirl", "SparklePop",
+            "DreamyBytes", "Starlight", "CandyFloss", "MangaMuse", "DollyCode",
+            "Bubblegum", "SugarRush", "TwinkleToes", "Flutterby", "RainbowSprinkle", 
+            "MelodyChan", "KawaiiQueen", "PuddingPop", "Cuddlebug", "LoveHeart" 
+        ]; // Cute-themed usernames
+
+        // --- Utility Functions ---
+
+        /** Creates a unique two-tone ascending chime sound for the completion effect 
+         * (Now an empty function as per user request to remove the sound)
+         */
+        function playCompletionSound() {
+            // Sound has been removed.
+        }
+
+        /** Formats number to currency with two decimal places */
+        function formatCurrency(number) {
+            return `₹ ${number.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+        }
+
+        /** Updates the statistic elements in the DOM */
+        function updateStatsDOM() {
+            document.getElementById('total-orders').textContent = stats.totalOrders.toLocaleString();
+            document.getElementById('total-completed').textContent = stats.completed.toLocaleString();
+            document.getElementById('total-failed').textContent = stats.failed.toLocaleString();
+            document.getElementById('total-revenue').textContent = formatCurrency(stats.revenue);
+        }
+
+        /** Generates a random new order object */
+        function generateOrder() {
+            let service;
+            
+            // Bias: 65% chance to pick an IG service
+            if (Math.random() < igBiasRatio) {
+                service = igServices[Math.floor(Math.random() * igServices.length)];
+            } else {
+                // Remaining 35% chance to pick from the full list (including IG)
+                service = services[Math.floor(Math.random() * services.length)];
+            }
+            
+            const username = usernames[Math.floor(Math.random() * usernames.length)];
+            
+            // Generate sequential ID starting from 1 (0000000001) and pad to 10 digits
+            const privateId = nextOrderId.toString().padStart(10, '0');
+            nextOrderId++; // Increment the counter for the next order
+            
+            // Quantity range based on service price to make simulation more dynamic
+            let quantity;
+            if (service.price > 5) {
+                quantity = Math.floor(Math.random() * 50) + 10; // Low volume for high cost services (e.g., YT Subs, LI Connections)
+            } else if (service.price < 0.2) {
+                quantity = Math.floor(Math.random() * 9000) + 1000; // High volume for low cost services (e.g., Views, Streams)
+            } else {
+                quantity = Math.floor(Math.random() * 900) + 100; // Medium volume
+            }
+
+            const cost = quantity * service.price;
+            const status = 'Processing';
+            const id = Math.random().toString(36).substring(2, 9);
+
+            // Returning the privateId along with other order data
+            return { id, username, privateId, service, quantity, cost, status };
+        }
+
+        /** Creates and prepends the HTML row for a new order */
+        function addOrderToDOM(order) {
+            const container = document.getElementById('orders-container');
+            const row = document.createElement('div');
+            row.id = `order-${order.id}`;
+            row.className = 'new-order-row grid grid-cols-12 text-xs py-3 border-b border-gray-100 hover:bg-gray-50 transition-all duration-300'; // Lighter hover
+            row.setAttribute('data-cost', order.cost);
+            row.setAttribute('data-id', order.id);
+
+            // Use the randomly generated username as the seed for a unique avatar image
+            const avatarUrl = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${order.username}&size=30`; // Still pixel art for now
+
+            row.innerHTML = `
+                <!-- User ID (Sequential Numerical ID + Avatar + Anonymous indicator) - col-span-3/3 --><div class="col-span-3 sm:col-span-3 flex items-center space-x-1 min-w-0">
+                    <img src="${avatarUrl}" alt="Avatar" class="w-7 h-7 rounded-full cute-border p-[1px] flex-shrink-0">
+                    <div class="flex flex-col min-w-0 overflow-hidden">
+                        <!-- ANONYMOUS label is now on top and bold --><span class="text-xs text-cute-red font-bold whitespace-nowrap cute-glow-text">ANONYMOUS</span>
+                        <!-- User ID is now below and slightly less prominent (Sequential ID) --><span class="text-gray-500 text-[10px] sm:text-xs whitespace-nowrap overflow-hidden text-ellipsis">${order.privateId}</span> 
+                    </div>
+                </div>
+                <!-- Service Name (Now showing full name) - col-span-3/3 --><div class="col-span-3 sm:col-span-3 truncate flex items-center">
+                    <span class="badge-${order.service.platform.toLowerCase()} px-1 py-0.5 rounded-full text-[9px] mr-1 hidden xs:inline flex-shrink-0">${order.service.platform}</span> 
+                    <!-- Showing the full service name --><span class="truncate">${order.service.name}</span> 
+                </div>
+                <!-- Quantity - col-span-2/2 (BOLD AND CUTE BLUE) --><div class="col-span-2 sm:col-span-2 flex items-center">
+                    <span class="font-bold cute-blue-text text-sm">${order.quantity.toLocaleString()}</span>
+                </div>
+                <!-- Cost - col-span-2/2 --><div class="col-span-2 sm:col-span-2 text-right flex items-center justify-end font-mono text-cute-purple">${formatCurrency(order.cost)}</div>
+                <!-- Status - col-span-2/2 --><div class="col-span-2 sm:col-span-2 text-center flex items-center justify-center">
+                    <!-- Updated to use cute-processing-text for yellow/gold text color --><span class="status-badge bg-cute-yellow cute-processing-text px-2 py-0.5 rounded-full text-[10px] animate-pulse">Processing</span> 
+                </div>
+            `;
+
+            container.prepend(row);
+            // Limit to 15 orders in the feed for performance and readability
+            while (container.children.length > 15) {
+                container.removeChild(container.lastChild);
+            }
+
+            // Immediately increment initial stats
+            stats.totalOrders += 1;
+            stats.revenue += order.cost;
+            updateStatsDOM();
+
+            // Set a timeout to process the order later
+            const processTime = Math.random() * 10000 + 5000; // 5 to 15 seconds
+            setTimeout(() => processOrder(row, order), processTime);
+        }
+
+        /** Updates an order's status and global stats */
+        function processOrder(rowElement, order) {
+            if (!rowElement) return; // In case the element was removed due to limit
+
+            const isSuccess = Math.random() > 0.15; // 85% success rate
+            const statusBadge = rowElement.querySelector('.status-badge');
+            const cost = parseFloat(rowElement.getAttribute('data-cost'));
+            
+            // Remove processing animation/colors before updating status
+            statusBadge.classList.remove('animate-pulse', 'bg-cute-yellow', 'cute-processing-text');
+
+            if (isSuccess) {
+                // Success - Set text to 'ORDER SUCCESS'
+                stats.completed += 1;
+                statusBadge.textContent = 'ORDER SUCCESS';
+                // Using the new .vibrant-success-bg class for dark light green
+                statusBadge.className = 'status-badge vibrant-success-bg px-2 py-0.5 rounded-full text-[10px] font-bold';
+                // Removed call to playCompletionSound();
+            } else {
+                // Failure - Set text to 'ORDER FAILED'
+                stats.failed += 1;
+                // Revert revenue for failed orders (optional, but realistic)
+                stats.revenue -= cost;
+                statusBadge.textContent = 'ORDER FAILED'; 
+                // Using bg-cute-red which is now a stronger red
+                statusBadge.className = 'status-badge bg-cute-red text-white px-2 py-0.5 rounded-full text-[10px] font-bold';
+            }
+
+            // Update stats panel
+            updateStatsDOM();
+
+            // Clean up animation class
+            rowElement.classList.remove('new-order-row');
+        }
+
+
+        // --- Simulation Control ---
+
+        function startSimulation() {
+            // Initial stats display
+            updateStatsDOM();
+
+            // Set up recurring order generation
+            const intervalDuration = 2000; // Add a new order every 2 seconds
+            setInterval(() => {
+                const newOrder = generateOrder();
+                addOrderToDOM(newOrder);
+            }, intervalDuration);
+
+            // Seed the initial feed with 5 orders
+            for (let i = 0; i < 5; i++) {
+                setTimeout(() => addOrderToDOM(generateOrder()), i * 1000);
+            }
+        }
+
+        // Initialize the simulation when the window loads
+        window.onload = startSimulation;
+
+    </script>
+</body>
+</html>
